@@ -19,6 +19,9 @@ let package = Package(
         .library(
             name: "AAASpotify",
             targets: ["AAASpotify"]),
+        .library(
+            name: "AAATwitter",
+            targets: ["AAATwitter"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -88,10 +91,31 @@ let package = Package(
                             )
                         ]
         ),
+        .target(
+            name: "AAATwitter",
+            dependencies: [
+                "AAA",
+                .product(
+                    name: "OpenAPIRuntime",
+                    package: "swift-openapi-runtime"
+                ),
+                .product(
+                    name: "OpenAPIURLSession",
+                    package: "swift-openapi-urlsession"
+                ),
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            plugins: [
+                            .plugin(
+                                name: "OpenAPIGenerator",
+                                package: "swift-openapi-generator"
+                            )
+                        ]
+        ),
         //
         .testTarget(
             name: "AAATests",
-            dependencies: ["AAA", "AAAGitHub","AAASpotify"]),
+            dependencies: ["AAA", "AAAGitHub","AAASpotify", "AAATwitter"]),
         .testTarget(name: "OpenAPISpotifyTests",
                    dependencies: ["AAA",  "AAASpotify"
                                  , .product(
@@ -111,6 +135,23 @@ let package = Package(
                                 ]),
         .testTarget(name: "OpenAPIGitHubTests",
                    dependencies: ["AAA",  "AAAGitHub"
+                                 , .product(
+                                    name: "OpenAPIRuntime",
+                                    package: "swift-openapi-runtime"
+                                ),
+                                .product(
+                                    name: "OpenAPIURLSession",
+                                    package: "swift-openapi-urlsession"
+                                ),
+                                 ],
+                    plugins: [
+                                    .plugin(
+                                        name: "OpenAPIGenerator",
+                                        package: "swift-openapi-generator"
+                                    )
+                                ]),
+        .testTarget(name: "OpenAPITwitterTests",
+                   dependencies: ["AAA",  "AAATwitter"
                                  , .product(
                                     name: "OpenAPIRuntime",
                                     package: "swift-openapi-runtime"
