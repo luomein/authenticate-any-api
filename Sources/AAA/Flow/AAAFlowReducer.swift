@@ -11,19 +11,14 @@ import OpenAPIRuntime
 import OpenAPIURLSession
 import HTTPTypes
 
-
-public struct AAAFlowReducer<Flow:AAAFlow>: Reducer{
+public struct AAAFlowReducer<Flow: AAAFlow>: Reducer where Flow.OpenAPIClientRequest.Response : AAARefreshableToken {
     @Dependency(\.errorHandler) var errorHandler
-    
-    public typealias OpenAPIRequestType = Flow.OpenAPIClientRequest
-    public typealias OpenAPIResponseType = Flow.OpenAPIResponse
-    public typealias OpenAPIRequestResponseReducerType = AsyncRequestResponseReducer<OpenAPIRequestType,OpenAPIResponseType>
-    public typealias UserWebAuthRequestResponseReducerType = AsyncRequestResponseReducer<AsyncUserWebAuthAgent.Parameter,String>
     var fetchOpenAPIClient : AsyncRequestClient
     var fetchUserWebAuthClient : AsyncRequestClient
+    public typealias T = Flow.OpenAPIClientRequest
     
-    public init(fetchOpenAPIClient: AsyncRequestClient = .init(fetch: Self.fetchOpenAPI(input:))
-                , fetchUserWebAuthClient: AsyncRequestClient = .init(fetch: Self.fetchUserWebAuth(input:))) {
+    public init(fetchOpenAPIClient: AsyncRequestClient = .init(fetch: OpenAPIClientRequestReducer<T>.fetchOpenAPI(input:))
+                , fetchUserWebAuthClient: AsyncRequestClient = .init(fetch: AsyncUserWebAuthReducer.fetchUserWebAuth(input:))) {
         self.fetchOpenAPIClient = fetchOpenAPIClient
         self.fetchUserWebAuthClient = fetchUserWebAuthClient
     }
@@ -31,67 +26,63 @@ public struct AAAFlowReducer<Flow:AAAFlow>: Reducer{
         public var authFlow : Flow
         public var prefersEphemeralWebBrowserSession: Bool
         public var refreshToken: String? = nil
-        public var accessTokenResponse : OpenAPIResponseType? = nil
-        public var joinStateOpenAPIRequestResponseReducer : OpenAPIRequestResponseReducerType.State
-        public var joinStateUserWebAuthRequestResponseReducer : UserWebAuthRequestResponseReducerType.State
-        public init(authFlow: Flow, prefersEphemeralWebBrowserSession: Bool
-                    , debounceDuration : DispatchQueue.SchedulerTimeType.Stride) {
+        public var accessTokenResponse : T.Response? = nil
+        public var joinStateOpenAPIClientRequestReducer : OpenAPIClientRequestReducer<T>.State
+        public var joinStateAsyncUserWebAuthReducer : AsyncUserWebAuthReducer.State
+        public init(authFlow: Flow,prefersEphemeralWebBrowserSession: Bool
+                    ,debounceDuration : DispatchQueue.SchedulerTimeType.Stride) {
             self.authFlow = authFlow
             self.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession
-            self.joinStateOpenAPIRequestResponseReducer = .init(debounceDuration: debounceDuration)
-            self.joinStateUserWebAuthRequestResponseReducer = .init(debounceDuration: debounceDuration)
+            self.joinStateOpenAPIClientRequestReducer = .init(debounceDuration: debounceDuration)
+            self.joinStateAsyncUserWebAuthReducer = .init(debounceDuration: debounceDuration)
         }
     }
     public enum Action:Equatable{
         case auth
         case refreshToken
-        case joinActionOpenAPIRequestResponseReducer(OpenAPIRequestResponseReducerType.Action)
-        case joinActionUserWebAuthRequestResponseReducer(UserWebAuthRequestResponseReducerType.Action)
+        case joinActionOpenAPIClientRequestReducer(OpenAPIClientRequestReducer<T>.Action)
+        case joinActionAsyncUserWebAuthReducer(AsyncUserWebAuthReducer.Action)
     }
-    
     public var body: some Reducer<State, Action> {
-        Scope(state: \.joinStateOpenAPIRequestResponseReducer, action: /Action.joinActionOpenAPIRequestResponseReducer) {
-            OpenAPIRequestResponseReducerType()
-                .dependency(\.asyncRequestClient, fetchOpenAPIClient)
+        Scope(state: \.joinStateOpenAPIClientRequestReducer, action: /Action.joinActionOpenAPIClientRequestReducer) {
+            OpenAPIClientRequestReducer<T>.init(fetchOpenAPIClient: fetchOpenAPIClient)
+            
         }
-        Scope(state: \.joinStateUserWebAuthRequestResponseReducer, action: /Action.joinActionUserWebAuthRequestResponseReducer) {
-            UserWebAuthRequestResponseReducerType()
-                .dependency(\.asyncRequestClient, fetchUserWebAuthClient)
+        Scope(state: \.joinStateAsyncUserWebAuthReducer, action: /Action.joinActionAsyncUserWebAuthReducer) {
+            AsyncUserWebAuthReducer(fetchUserWebAuthClient: fetchUserWebAuthClient)
+            
         }
         Reduce { state, action in
             switch action {
             case .auth:
                 if state.authFlow.needUserWebAuth{
                     let parameter =  state.authFlow.userWebAuthParameter(prefersEphemeralWebBrowserSession: state.prefersEphemeralWebBrowserSession)!
-                    return .send(.joinActionUserWebAuthRequestResponseReducer(.debounceQueuedRequest(request: parameter)))
+                    return .send(.joinActionAsyncUserWebAuthReducer(.userWebAuth( parameter)))
                 }
                 else{
                     let clientRequest = state.authFlow.requestToken(authorizedCode: nil)
-                    return .send(.joinActionOpenAPIRequestResponseReducer(.debounceQueuedRequest(request: clientRequest)))
+                    return .send(.joinActionOpenAPIClientRequestReducer(.request(clientRequest)))
                 }
-                
-                
             case .refreshToken:
                 if state.authFlow.canRefreshToken{
                     let clientRequest = state.authFlow.refreshToken(refreshToken: state.refreshToken)
-                    return .send(.joinActionOpenAPIRequestResponseReducer(.debounceQueuedRequest(request: clientRequest)))
+                    return .send(.joinActionOpenAPIClientRequestReducer(.request(clientRequest)))
                 }
-            case .joinActionOpenAPIRequestResponseReducer(let subAction):
+            case .joinActionOpenAPIClientRequestReducer(let subAction):
                 switch subAction{
-                case .response(.success(let response)):
+                case .receive(let response):
                     state.accessTokenResponse = response
                     if let refreshToken = state.accessTokenResponse?.refresh_token{
                         state.refreshToken = refreshToken
                     }
-                    break
                 default:
                     break
                 }
-            case .joinActionUserWebAuthRequestResponseReducer(let subAction):
+            case .joinActionAsyncUserWebAuthReducer(let subAction):
                 switch subAction{
-                case .response(.success(let code)):
+                case .receive( let code ):
                     let clientRequest = state.authFlow.requestToken(authorizedCode: code)
-                    return .send(.joinActionOpenAPIRequestResponseReducer(.debounceQueuedRequest(request: clientRequest)))
+                    return .send(.joinActionOpenAPIClientRequestReducer(.request(clientRequest)))
                 default:
                     break
                 }
@@ -100,13 +91,4 @@ public struct AAAFlowReducer<Flow:AAAFlow>: Reducer{
         }
     }
 }
-extension AAAFlowReducer{
-    public static func fetchOpenAPI(input: Sendable) async throws -> Sendable {
-        let response = try await Flow.fetchRequest(clientRequest: input as! OpenAPIRequestType)
-        return response
-    }
-    public static func fetchUserWebAuth(input: Sendable) async throws -> Sendable {
-        let response = try await AsyncUserWebAuthAgent.authFlow(parameter: input as! AsyncUserWebAuthAgent.Parameter)
-        return response
-    }
-}
+

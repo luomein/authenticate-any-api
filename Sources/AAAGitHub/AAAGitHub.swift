@@ -6,25 +6,15 @@
 //
 
 import Foundation
+import AAA
 
+///
+///
+///
+///
+public enum AAAGitHub: Equatable{
+    case github_app_user_access_token_webflow(client_id: String, client_secret: String, redirect_uri: URL) //https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app
+    
+    case oauth_app_user_access_token_webflow(client_id: String, client_secret: String, redirect_uri: URL, scope: [Scope]?) //https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
 
-public struct AAAGitHub{
-    public enum Scope:String{
-        case repo = "repo"
-        case user = "user"
-    }
-    public static var responseType = "code"
-    public static func userWebAuthURL(redirect_uri: URL, client_id: String, scope : [Scope]) -> URL{
-        let base_url = "https://github.com/login/oauth/authorize"
-        let convertScope : ([Scope]) -> String = { $0.map({$0.rawValue}).joined(separator: " ") }
-        let queryItems : [URLQueryItem] = [
-            URLQueryItem(name: "client_id" , value: client_id),
-            URLQueryItem(name: "redirect_uri" , value: redirect_uri.absoluteString),
-            URLQueryItem(name: "response_type" , value: AAAGitHub.responseType),
-            URLQueryItem(name: "scope", value: convertScope(scope))
-       ]
-        var components = URLComponents(string: base_url)!
-        components.queryItems = queryItems
-        return components.url!
-    }
 }

@@ -17,7 +17,7 @@ final class AsyncRequestResponseReducerTests: XCTestCase {
     let debounceDuration : DispatchQueue.SchedulerTimeType.Stride = 0.1
     let testQueue = DispatchQueue.test
     let mainQueue = DispatchQueue.main
-    typealias Reducer = AsyncRequestResponseReducer<AsyncUserWebAuthAgent.Parameter,Bool>
+    typealias Reducer = BaseAsyncRequestReducer<AsyncUserWebAuthAgent.Parameter,Bool>
     typealias State = Reducer.State
     
     func fetchWrapper(input: Sendable) async throws -> Sendable{
@@ -42,18 +42,18 @@ final class AsyncRequestResponseReducerTests: XCTestCase {
     func testGitHub() async throws {
         typealias credential = Credential.GithubAuth
         typealias AAA = AAAGitHub
-        let url = AAA.userWebAuthURL(redirect_uri: credential.redirect_uri
+        let url = AAA.UserWebAuthURL(redirect_uri: credential.redirect_uri
                                            , client_id: credential.client_id
                                            , scope: [.repo,.user])
         let parameter = AsyncUserWebAuthAgent.Parameter(url: url
                                                         , redirect_uri: credential.redirect_uri
-                                                        , prefersEphemeralWebBrowserSession: false, response_type: AAA.responseType)
+                                                        , prefersEphemeralWebBrowserSession: false, response_type: AAA.Const.responseType)
         try await testReducer(parameter: parameter)
     }
     func testSpotify() async throws {
         typealias credential = Credential.SpotifyAuth
         typealias AAA = AAASpotify
-        let url = AAA.userWebAuthURL(redirect_uri: credential.redirect_uri
+        let url = AAA.UserWebAuthURL(redirect_uri: credential.redirect_uri
                                            , client_id: credential.client_id
                                            )
         let parameter = AsyncUserWebAuthAgent.Parameter(url: url

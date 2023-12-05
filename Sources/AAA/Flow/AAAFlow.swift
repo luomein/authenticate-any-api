@@ -7,16 +7,23 @@
 
 import Foundation
 
-public protocol TokenRefreshable: Equatable{
+public protocol AAARefreshableToken: Equatable{
     var refresh_token : String? {get}
 }
-public protocol AAAFlow: Equatable{
-    associatedtype OpenAPIClientRequest : Equatable
-    associatedtype OpenAPIResponse : TokenRefreshable
+public protocol AAAUserWebAuth: Equatable{
     var needUserWebAuth : Bool {get}
+    func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AsyncUserWebAuthAgent.Parameter?
+}
+
+public protocol AAATokenOpenAPI: Equatable{
+    associatedtype OpenAPIClientRequest : OpenAPIClientRequestProtocol
+    
+
     var canRefreshToken : Bool {get}
     func requestToken(authorizedCode: String?)->OpenAPIClientRequest
     func refreshToken(refreshToken: String?)->OpenAPIClientRequest
-    static func fetchRequest(clientRequest: OpenAPIClientRequest)async throws->OpenAPIResponse
-    func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AsyncUserWebAuthAgent.Parameter?
+
+}
+public protocol AAAFlow: AAAUserWebAuth,AAATokenOpenAPI, Equatable{
+
 }

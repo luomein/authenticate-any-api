@@ -1,0 +1,67 @@
+openapi: '3.1.0'
+info:
+  description:
+  version: 2023.11.14
+  title: GitHub
+ 
+servers:
+- url: https://github.com
+externalDocs:
+  description: Authorizing OAuth apps
+  url: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps
+paths:
+  "/login/oauth/access_token":
+    post:
+      operationId: login/oauth/access_token
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              "$ref": "#/components/schemas/access_token_request"
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/access_token_response"
+
+components:
+  schemas:
+    access_token_response:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        refresh_token:
+          type: string
+        scope:
+          type: string
+        expires_in:
+          type: integer
+        refresh_token_expires_in:
+          type: integer
+      additionalProperties: false
+      required:
+      - access_token
+
+    access_token_request:
+      type: object
+      properties:
+        code:
+          type: string
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        redirect_uri:
+          type: string
+          format: uri-template
+      required:
+      - code
+      - client_id
+      - client_secret
+      - redirect_uri
