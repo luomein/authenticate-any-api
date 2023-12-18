@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 public struct ErrorHandler{
-    var receive: (Error) -> Void
+    public var receive: (Error) -> Void
     
     public static var fataError = Self(receive: {
         fatalError($0.localizedDescription)

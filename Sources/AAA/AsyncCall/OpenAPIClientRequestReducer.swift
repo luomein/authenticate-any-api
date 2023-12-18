@@ -17,35 +17,35 @@ public protocol OpenAPIClientRequestProtocol:Equatable{
     static func fetchOpenAPI(clientRequest: Self)async throws->Response
 }
 public struct OpenAPIClientRequestReducer<T: OpenAPIClientRequestProtocol> : Reducer{
-    public typealias AsyncRequestReducer = BaseAsyncRequestReducer<T,T.Response>
-    var fetchOpenAPIClient : AsyncRequestClient
+    public typealias AsyncCallReducer = BaseAsyncCallReducer<T,T.Response>
+    var asyncCallClient : AsyncCallClient
     
-    public init(fetchOpenAPIClient: AsyncRequestClient = .init(fetch: Self.fetchOpenAPI(input:))
+    public init(asyncCallClient: AsyncCallClient = .init(fetch: Self.fetchOpenAPI(input:))
     ) {
-        self.fetchOpenAPIClient = fetchOpenAPIClient
+        self.asyncCallClient = asyncCallClient
     }
     public struct State:Equatable{
         public var response: T.Response?
-        public var joinStateAsyncRequestReducer : AsyncRequestReducer.State
+        public var joinStateAsyncCallReducer : AsyncCallReducer.State
         public init(debounceDuration : DispatchQueue.SchedulerTimeType.Stride) {
-            self.joinStateAsyncRequestReducer = .init(debounceDuration: debounceDuration)
+            self.joinStateAsyncCallReducer = .init(debounceDuration: debounceDuration)
         }
     }
     public enum Action:Equatable{
-        case joinActionAsyncRequestReducer(AsyncRequestReducer.Action)
-        case request(T)
+        case joinActionAsyncCallReducer(AsyncCallReducer.Action)
+        case asyncCall(T)
         case receive(T.Response)
     }
     public var body: some Reducer<State, Action> {
-        Scope(state: \.joinStateAsyncRequestReducer, action: /Action.joinActionAsyncRequestReducer) {
-            BaseAsyncRequestReducer()
-                .dependency(\.asyncRequestClient, fetchOpenAPIClient)
+        Scope(state: \.joinStateAsyncCallReducer, action: /Action.joinActionAsyncCallReducer) {
+            AsyncCallReducer()
+                .dependency(\.asyncCallClient, asyncCallClient)
         }
         Reduce { state, action in
             switch action{
-            case .request(let request):
-                return .send(.joinActionAsyncRequestReducer(.debounceQueuedRequest(request: request)) )
-            case .joinActionAsyncRequestReducer(let subAction):
+            case .asyncCall(let request):
+                return .send(.joinActionAsyncCallReducer(.debounceQueuedRequest(request: request)) )
+            case .joinActionAsyncCallReducer(let subAction):
                 switch subAction{
                 case .response(.success(let response)):
                     return .send(.receive(response))

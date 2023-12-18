@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-public struct AsyncRequestClient{
+public struct AsyncCallClient{
     var fetch: ( Sendable) async throws ->  Sendable
     
     public static var passThroughClient = Self(fetch: {sendable in
@@ -21,15 +21,14 @@ public struct AsyncRequestClient{
         self.fetch = fetch
     }
 }
-extension AsyncRequestClient:DependencyKey{
-    public static let liveValue: AsyncRequestClient = Self(fetch: {_ in
+extension AsyncCallClient:DependencyKey{
+    public static let liveValue: AsyncCallClient = Self(fetch: {_ in
         XCTFail("Unimplemented")
     })
-//    public static let testValue: AsyncRequestClient = passThroughClient
 }
 extension DependencyValues{
-    public var asyncRequestClient: AsyncRequestClient{
-        get { self[AsyncRequestClient.self] }
-        set { self[AsyncRequestClient.self] = newValue }
+    public var asyncCallClient: AsyncCallClient{
+        get { self[AsyncCallClient.self] }
+        set { self[AsyncCallClient.self] = newValue }
     }
 }

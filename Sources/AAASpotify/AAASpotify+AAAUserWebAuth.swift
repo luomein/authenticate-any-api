@@ -18,7 +18,7 @@ extension AAASpotify : AAAUserWebAuth{
             return false
         }
     }
-    public func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AsyncUserWebAuthAgent.Parameter?{
+    public func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AuthorizationUrl.Parameter?{
         guard needUserWebAuth else {return nil}
         switch self {
         case .authorization_code(let client_id, _, let redirect_uri, let scope, let state):

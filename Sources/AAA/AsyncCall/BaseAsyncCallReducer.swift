@@ -9,9 +9,9 @@ import Foundation
 import ComposableArchitecture
 
 
-public struct BaseAsyncRequestReducer<RequestType:Equatable, ResponseType:Equatable>: Reducer{
+public struct BaseAsyncCallReducer<RequestType:Equatable, ResponseType:Equatable>: Reducer{
     @Dependency(\.mainQueue) var mainQueue
-    @Dependency(\.asyncRequestClient) var asyncRequestClient
+    @Dependency(\.asyncCallClient) var asyncCallClient
     @Dependency(\.errorHandler) var errorHandler
     public init(){}
     public struct State:Equatable{
@@ -34,12 +34,11 @@ public struct BaseAsyncRequestReducer<RequestType:Equatable, ResponseType:Equata
         case .debounceQueuedRequest(let request):
             return
                 .run(operation: {[request] send in
-                    await send(.response(TaskResult{try await asyncRequestClient.fetch(request) as! ResponseType}))
+                    await send(.response(TaskResult{try await asyncCallClient.fetch(request) as! ResponseType}))
                 })
                 .debounce(id: CancelID.debounceRequest, for: state.debounceDuration, scheduler: mainQueue)
         case .response(.success(let response)):
             state.response = response
-            //print(response)
             break
         case .response(.failure(let error)):
             errorHandler.receive(error)

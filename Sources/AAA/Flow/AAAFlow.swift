@@ -12,7 +12,7 @@ public protocol AAARefreshableToken: Equatable{
 }
 public protocol AAAUserWebAuth: Equatable{
     var needUserWebAuth : Bool {get}
-    func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AsyncUserWebAuthAgent.Parameter?
+    func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AuthorizationUrl.Parameter?
 }
 
 public protocol AAATokenOpenAPI: Equatable{

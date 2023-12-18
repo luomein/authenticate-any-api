@@ -11,7 +11,7 @@ import AAA
 import AAAGitHub
 import AAASpotify
 
-final class AsyncUserWebAuthAgentTests: XCTestCase {
+final class AuthorizationUrlTests: XCTestCase {
 
     
     func testGitHub() async throws {
@@ -25,10 +25,10 @@ final class AsyncUserWebAuthAgentTests: XCTestCase {
                                            , scope: [.repo,.user]
                                      , login: login
                                      , allow_signup : allow_signup)
-        let parameter = AsyncUserWebAuthAgent.Parameter(url: url
+        let parameter = AuthorizationUrl.Parameter(url: url
                                                         , redirect_uri: credential.redirect_uri
                                                         , prefersEphemeralWebBrowserSession: prefersEphemeralWebBrowserSession, response_type: AAA.Const.responseType)
-        let response = try await AsyncUserWebAuthAgent.authFlow(parameter: parameter)
+        let response = try await AuthorizationUrlReducer.fetchAuthorizationUrl(input: parameter)
         print(response)
     }
     
@@ -38,10 +38,10 @@ final class AsyncUserWebAuthAgentTests: XCTestCase {
         let url = AAA.UserWebAuthURL(redirect_uri: credential.redirect_uri
                                            , client_id: credential.client_id
                                            )
-        let parameter = AsyncUserWebAuthAgent.Parameter(url: url
+        let parameter = AuthorizationUrl.Parameter(url: url
                                                         , redirect_uri: credential.redirect_uri
                                                         , prefersEphemeralWebBrowserSession: false, response_type: AAA.Const.responseType)
-        let response = try await AsyncUserWebAuthAgent.authFlow(parameter: parameter)
+        let response = try await AuthorizationUrlReducer.fetchAuthorizationUrl(input: parameter)
         print(response)
     }
 

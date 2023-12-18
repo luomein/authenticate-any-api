@@ -16,7 +16,7 @@ extension AAAGitHub: AAAUserWebAuth{
             return true
         }
     }
-    public func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AsyncUserWebAuthAgent.Parameter?{
+    public func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AuthorizationUrl.Parameter?{
         guard needUserWebAuth else {return nil}
         switch self {
         case .github_app_user_access_token_webflow(let client_id, _, let redirect_uri ):

@@ -13,12 +13,12 @@ import HTTPTypes
 
 public struct AAAFlowReducer<Flow: AAAFlow>: Reducer where Flow.OpenAPIClientRequest.Response : AAARefreshableToken {
     @Dependency(\.errorHandler) var errorHandler
-    var fetchOpenAPIClient : AsyncRequestClient
-    var fetchUserWebAuthClient : AsyncRequestClient
+    var fetchOpenAPIClient : AsyncCallClient
+    var fetchUserWebAuthClient : AsyncCallClient
     public typealias T = Flow.OpenAPIClientRequest
     
-    public init(fetchOpenAPIClient: AsyncRequestClient = .init(fetch: OpenAPIClientRequestReducer<T>.fetchOpenAPI(input:))
-                , fetchUserWebAuthClient: AsyncRequestClient = .init(fetch: AsyncUserWebAuthReducer.fetchUserWebAuth(input:))) {
+    public init(fetchOpenAPIClient: AsyncCallClient = .init(fetch: OpenAPIClientRequestReducer<T>.fetchOpenAPI(input:))
+                , fetchUserWebAuthClient: AsyncCallClient = .init(fetch: AuthorizationUrlReducer.fetchAuthorizationUrl(input:))) {
         self.fetchOpenAPIClient = fetchOpenAPIClient
         self.fetchUserWebAuthClient = fetchUserWebAuthClient
     }
@@ -28,7 +28,7 @@ public struct AAAFlowReducer<Flow: AAAFlow>: Reducer where Flow.OpenAPIClientReq
         public var refreshToken: String? = nil
         public var accessTokenResponse : T.Response? = nil
         public var joinStateOpenAPIClientRequestReducer : OpenAPIClientRequestReducer<T>.State
-        public var joinStateAsyncUserWebAuthReducer : AsyncUserWebAuthReducer.State
+        public var joinStateAsyncUserWebAuthReducer : AuthorizationUrlReducer.State
         public init(authFlow: Flow,prefersEphemeralWebBrowserSession: Bool
                     ,debounceDuration : DispatchQueue.SchedulerTimeType.Stride) {
             self.authFlow = authFlow
@@ -41,15 +41,17 @@ public struct AAAFlowReducer<Flow: AAAFlow>: Reducer where Flow.OpenAPIClientReq
         case auth
         case refreshToken
         case joinActionOpenAPIClientRequestReducer(OpenAPIClientRequestReducer<T>.Action)
-        case joinActionAsyncUserWebAuthReducer(AsyncUserWebAuthReducer.Action)
+        case joinActionAsyncUserWebAuthReducer(AuthorizationUrlReducer.Action)
     }
     public var body: some Reducer<State, Action> {
         Scope(state: \.joinStateOpenAPIClientRequestReducer, action: /Action.joinActionOpenAPIClientRequestReducer) {
-            OpenAPIClientRequestReducer<T>.init(fetchOpenAPIClient: fetchOpenAPIClient)
+            OpenAPIClientRequestReducer<T>.init(asyncCallClient: fetchOpenAPIClient)
             
         }
         Scope(state: \.joinStateAsyncUserWebAuthReducer, action: /Action.joinActionAsyncUserWebAuthReducer) {
-            AsyncUserWebAuthReducer(fetchUserWebAuthClient: fetchUserWebAuthClient)
+            AuthorizationUrlReducer(
+                asyncCallClient: fetchUserWebAuthClient
+                )
             
         }
         Reduce { state, action in
@@ -57,16 +59,16 @@ public struct AAAFlowReducer<Flow: AAAFlow>: Reducer where Flow.OpenAPIClientReq
             case .auth:
                 if state.authFlow.needUserWebAuth{
                     let parameter =  state.authFlow.userWebAuthParameter(prefersEphemeralWebBrowserSession: state.prefersEphemeralWebBrowserSession)!
-                    return .send(.joinActionAsyncUserWebAuthReducer(.userWebAuth( parameter)))
+                    return .send(.joinActionAsyncUserWebAuthReducer(.asyncCall( parameter)))
                 }
                 else{
                     let clientRequest = state.authFlow.requestToken(authorizedCode: nil)
-                    return .send(.joinActionOpenAPIClientRequestReducer(.request(clientRequest)))
+                    return .send(.joinActionOpenAPIClientRequestReducer(.asyncCall(clientRequest)))
                 }
             case .refreshToken:
                 if state.authFlow.canRefreshToken{
                     let clientRequest = state.authFlow.refreshToken(refreshToken: state.refreshToken)
-                    return .send(.joinActionOpenAPIClientRequestReducer(.request(clientRequest)))
+                    return .send(.joinActionOpenAPIClientRequestReducer(.asyncCall(clientRequest)))
                 }
             case .joinActionOpenAPIClientRequestReducer(let subAction):
                 switch subAction{
@@ -82,7 +84,7 @@ public struct AAAFlowReducer<Flow: AAAFlow>: Reducer where Flow.OpenAPIClientReq
                 switch subAction{
                 case .receive( let code ):
                     let clientRequest = state.authFlow.requestToken(authorizedCode: code)
-                    return .send(.joinActionOpenAPIClientRequestReducer(.request(clientRequest)))
+                    return .send(.joinActionOpenAPIClientRequestReducer(.asyncCall(clientRequest)))
                 default:
                     break
                 }
