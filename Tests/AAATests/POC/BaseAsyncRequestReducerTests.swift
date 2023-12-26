@@ -12,7 +12,7 @@ import ComposableArchitecture
 
 @MainActor
 @available(macOS 13.0, *)
-final class BasicTests: XCTestCase {
+final class BaseAsyncRequestReducerTests: XCTestCase {
     
     struct BaseAsyncCallReducer<RequestType:Equatable, ResponseType:Equatable>: Reducer{
         @Dependency(\.mainQueue) var mainQueue

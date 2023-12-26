@@ -25,7 +25,7 @@ extension AAASpotify: AAATokenUrl{
     }
     
     public func requestToken(authorizedCode: String?)->TokenUrl{
-        return .request_token(code: authorizedCode!, authFlow: self)
+        return .request_token(code: authorizedCode, authFlow: self)
     }
     public func refreshToken(refreshToken: String?)->TokenUrl{
         guard canRefreshToken, let refreshToken = refreshToken else{

@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 public struct TokenUrlReducer<T: TokenUrlProtocol>: Reducer{
+    public init(){}
     public struct State:Equatable{
         public var response: T.Response?
         public var joinStateOpenAPIClientRequestReducer : OpenAPIClientRequestReducer<T>.State
