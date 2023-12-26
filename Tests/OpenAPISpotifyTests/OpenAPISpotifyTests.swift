@@ -28,7 +28,7 @@ final class OpenAPISpotifyTests: XCTestCase {
         }
         await store.send(.auth).finish()
         let access_token = store.withState { state in
-            //print(state.accessTokenResponse )
+            print(state.accessTokenResponse )
             return state.accessTokenResponse!.access_token
         }
         let client = OpenAPISpotifyClient(accessToken: access_token)
@@ -36,3 +36,4 @@ final class OpenAPISpotifyTests: XCTestCase {
         print(response)
     }
 }
+

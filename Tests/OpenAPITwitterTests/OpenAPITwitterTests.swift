@@ -36,7 +36,6 @@ final class OpenAPITwitterTests: XCTestCase {
             print(state.accessTokenResponse )
             return state.accessTokenResponse!.access_token
         }
-        //print(access_token)
         let client = OpenAPITwitterClient(accessToken: access_token)
         let response  = try! await client.findMyUser()
         print(response)
