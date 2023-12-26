@@ -12,7 +12,7 @@ import OpenAPIURLSession
 import HTTPTypes
 
 
-extension AAASpotify: AAATokenOpenAPI{
+extension AAASpotify: AAATokenUrl{
     
     
     public var canRefreshToken : Bool{
@@ -24,10 +24,10 @@ extension AAASpotify: AAATokenOpenAPI{
         }
     }
     
-    public func requestToken(authorizedCode: String?)->OpenAPIClientRequest{
+    public func requestToken(authorizedCode: String?)->TokenUrl{
         return .request_token(code: authorizedCode!, authFlow: self)
     }
-    public func refreshToken(refreshToken: String?)->OpenAPIClientRequest{
+    public func refreshToken(refreshToken: String?)->TokenUrl{
         guard canRefreshToken, let refreshToken = refreshToken else{
             fatalError()
         }

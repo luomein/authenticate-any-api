@@ -12,7 +12,7 @@ import OpenAPIURLSession
 import HTTPTypes
 
 
-extension AAATwitter: AAATokenOpenAPI{
+extension AAATwitter: AAATokenUrl{
     
     
     public var canRefreshToken : Bool{

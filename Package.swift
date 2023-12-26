@@ -166,6 +166,34 @@ let package = Package(
                                         name: "OpenAPIGenerator",
                                         package: "swift-openapi-generator"
                                     )
-                                ])
+                                ]),
+        .testTarget(name: "OpenAPIClientRequestReducerTests",
+                    dependencies: ["AAA"
+                                  , .product(
+                                     name: "OpenAPIRuntime",
+                                     package: "swift-openapi-runtime"
+                                 ),
+                                 .product(
+                                     name: "OpenAPIURLSession",
+                                     package: "swift-openapi-urlsession"
+                                 ),
+                                  ],
+                     plugins: [
+                                     .plugin(
+                                         name: "OpenAPIGenerator",
+                                         package: "swift-openapi-generator"
+                                     )
+                                 ]
+                   
+                   ),
+        .testTarget(name: "OpenAPIClientRequestTests",
+                    dependencies: [
+                        .product(name: "OpenAPIRuntime",package: "swift-openapi-runtime"),
+                        .product(name: "OpenAPIURLSession",package: "swift-openapi-urlsession"),
+                    ],
+                    plugins: [
+                       .plugin(name: "OpenAPIGenerator",package: "swift-openapi-generator")
+                    ]
+                   )
     ]
 )

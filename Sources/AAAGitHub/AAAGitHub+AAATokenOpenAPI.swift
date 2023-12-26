@@ -11,7 +11,7 @@ import OpenAPIURLSession
 import HTTPTypes
 import AAA
 
-extension AAAGitHub : AAATokenOpenAPI{
+extension AAAGitHub : AAATokenUrl{
     
     
     public func requestToken(authorizedCode: String?) -> OpenAPIClientRequest {

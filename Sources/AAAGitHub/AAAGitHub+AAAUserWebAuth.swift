@@ -8,16 +8,16 @@
 import Foundation
 import AAA
 
-extension AAAGitHub: AAAUserWebAuth{
-    public var needUserWebAuth : Bool{
+extension AAAGitHub: AAAAuthorizationUrl{
+    public var needAuthorizationUrl : Bool{
         switch self {
         case .github_app_user_access_token_webflow,
                 .oauth_app_user_access_token_webflow:
             return true
         }
     }
-    public func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AuthorizationUrl.Parameter?{
-        guard needUserWebAuth else {return nil}
+    public func authorizationUrlParameter(prefersEphemeralWebBrowserSession: Bool) ->  AuthorizationUrl.Parameter?{
+        guard needAuthorizationUrl else {return nil}
         switch self {
         case .github_app_user_access_token_webflow(let client_id, _, let redirect_uri ):
             let userWebAuthURL = Self.UserWebAuthURL(redirect_uri: redirect_uri

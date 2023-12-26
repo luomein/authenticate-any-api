@@ -8,7 +8,7 @@
 import Foundation
 
 public extension AAASpotify{
-    static func UserWebAuthURL(redirect_uri: URL, client_id: String, scope : [Scope]? = nil,  state : String? = nil
+    static func AuthorizationUrl(redirect_uri: URL, client_id: String, scope : [Scope]? = nil,  state : String? = nil
                                     , code_challenge_method : String? = nil
                                     , code_challenge : String? = nil
     ) -> URL{

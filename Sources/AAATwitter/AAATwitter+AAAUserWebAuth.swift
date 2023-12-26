@@ -9,8 +9,8 @@ import Foundation
 import AAA
 
 
-extension AAATwitter : AAAUserWebAuth{
-    public var needUserWebAuth : Bool{
+extension AAATwitter : AAAAuthorizationUrl{
+    public var needAuthorizationUrl : Bool{
         switch self {
         case   .authorization_code_PKCE:
             return true
@@ -18,8 +18,8 @@ extension AAATwitter : AAAUserWebAuth{
 //            return false
         }
     }
-    public func userWebAuthParameter(prefersEphemeralWebBrowserSession: Bool) ->  AuthorizationUrl.Parameter?{
-        guard needUserWebAuth else {return nil}
+    public func authorizationUrlParameter(prefersEphemeralWebBrowserSession: Bool) ->  AuthorizationUrl.Parameter?{
+        guard needAuthorizationUrl else {return nil}
         switch self {
 
         case .authorization_code_PKCE(client_id: let client_id, redirect_uri: let redirect_uri,  code_challenge: let code_challenge, _, let scope, let state):

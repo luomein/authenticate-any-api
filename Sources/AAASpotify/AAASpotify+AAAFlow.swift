@@ -7,5 +7,4 @@
 
 import Foundation
 import AAA
-
 extension AAASpotify: AAAFlow{}

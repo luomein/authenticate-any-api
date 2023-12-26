@@ -16,17 +16,8 @@ extension Components.Schemas.access_token_response : AAARefreshableToken{
 }
 
 public extension AAASpotify{
-//    struct OpenAPIClientRequest: Equatable{
-//        public static func == (lhs: Self, rhs: Self) -> Bool {
-//            return true
-//        }
-//
-//        public var client: Client
-//        public var request: Components.Schemas.access_token_request
-//
-//
-//    }
-    public enum OpenAPIClientRequest :  OpenAPIClientRequestProtocol{
+
+    enum TokenUrl :  TokenUrlProtocol{
 
         case request_token(code: String?, authFlow: AAASpotify)
         case refresh_token(refresh_token: String, authFlow: AAASpotify)

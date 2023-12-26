@@ -26,7 +26,7 @@ public extension AAATwitter{
 //
 //
 //    }
-    public enum OpenAPIClientRequest :  OpenAPIClientRequestProtocol{
+    public enum OpenAPIClientRequest :  OpenAPIClientRequest{
 
         case request_token(code: String?, authFlow: AAATwitter)
         case refresh_token(refresh_token: String, authFlow: AAATwitter)
