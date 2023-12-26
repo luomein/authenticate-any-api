@@ -26,7 +26,22 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/access_token_response"
-
+  "/oauth2/token":
+    post:
+      operationId: api/token/clientCredentials
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              "$ref": "#/components/schemas/access_token_request"
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/access_token_response"
 components:
   schemas:
     access_token_response:

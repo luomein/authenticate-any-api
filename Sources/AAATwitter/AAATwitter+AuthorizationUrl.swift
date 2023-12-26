@@ -8,7 +8,7 @@
 import Foundation
 
 public extension AAATwitter{
-    static func UserWebAuthURL(redirect_uri: URL, client_id: String, scope : [Scope]? = nil,  state : String
+    static func AuthorizationUrl(redirect_uri: URL, client_id: String, scope : [Scope]? = nil,  state : String
                                     , code_challenge_method : String
                                     , code_challenge : String 
     ) -> URL{

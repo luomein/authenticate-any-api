@@ -14,8 +14,8 @@ extension AAATwitter : AAAAuthorizationUrl{
         switch self {
         case   .authorization_code_PKCE:
             return true
-//        case .clientCredentials:
-//            return false
+        case .clientCredentials:
+            return false
         }
     }
     public func authorizationUrlParameter(prefersEphemeralWebBrowserSession: Bool) ->  AuthorizationUrl.Parameter?{
@@ -23,7 +23,7 @@ extension AAATwitter : AAAAuthorizationUrl{
         switch self {
 
         case .authorization_code_PKCE(client_id: let client_id, redirect_uri: let redirect_uri,  code_challenge: let code_challenge, _, let scope, let state):
-            let userWebAuthURL = Self.UserWebAuthURL(redirect_uri: redirect_uri
+            let userWebAuthURL = Self.AuthorizationUrl(redirect_uri: redirect_uri
                                                      , client_id: client_id
                                                      , scope: scope
                                                      , state: state

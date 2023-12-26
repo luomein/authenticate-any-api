@@ -17,7 +17,7 @@ extension Components.Schemas.access_token_response : AAARefreshableToken{
 
 extension AAAGitHub{
 
-    public enum OpenAPIClientRequest :  OpenAPIClientRequest{
+    public enum TokenUrl :  TokenUrlProtocol{
         case request_token(code: String, authFlow: AAAGitHub)
         //case refresh_token(refresh_token: String, authFlow: AAAGitHub)
         

@@ -14,7 +14,7 @@ import AAA
 extension AAAGitHub : AAATokenUrl{
     
     
-    public func requestToken(authorizedCode: String?) -> OpenAPIClientRequest {
+    public func requestToken(authorizedCode: String?) -> TokenUrl {
         switch self {
         case .github_app_user_access_token_webflow,
                 .oauth_app_user_access_token_webflow:
@@ -22,7 +22,7 @@ extension AAAGitHub : AAATokenUrl{
         }
     }
     
-    public func refreshToken(refreshToken: String?) -> OpenAPIClientRequest {
+    public func refreshToken(refreshToken: String?) -> TokenUrl {
         fatalError()
     }
     

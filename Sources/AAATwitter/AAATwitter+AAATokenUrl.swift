@@ -19,14 +19,15 @@ extension AAATwitter: AAATokenUrl{
         switch self {
         case  .authorization_code_PKCE:
             return true
-         
+        case .clientCredentials:
+            return false
         }
     }
     
-    public func requestToken(authorizedCode: String?)->OpenAPIClientRequest{
-        return .request_token(code: authorizedCode!, authFlow: self)
+    public func requestToken(authorizedCode: String?)->TokenUrl{
+        return .request_token(code: authorizedCode, authFlow: self)
     }
-    public func refreshToken(refreshToken: String?)->OpenAPIClientRequest{
+    public func refreshToken(refreshToken: String?)->TokenUrl{
         guard canRefreshToken, let refreshToken = refreshToken else{
             fatalError()
         }
