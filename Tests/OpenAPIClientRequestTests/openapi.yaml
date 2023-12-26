@@ -1,0 +1,68 @@
+openapi: '3.1.0'
+info:
+  description:
+  version: 2023.11.14
+  title: Spotify
+ 
+servers:
+- url: https://accounts.spotify.com
+externalDocs:
+  description: Authorization Code Flow
+  url: https://developer.spotify.com/documentation/web-api/tutorials/code-flow
+paths:
+  "/api/token":
+    post:
+      operationId: api/token
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              "$ref": "#/components/schemas/access_token_request"
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/access_token_response"
+
+components:
+  schemas:
+    access_token_response:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        refresh_token:
+          type: string
+        scope:
+          type: string
+        expires_in:
+          type: integer
+      additionalProperties: false
+      required:
+      - access_token
+
+
+    access_token_request:
+      type: object
+      properties:
+        code:
+          type: string
+        grant_type:
+          type: string
+        refresh_token:
+          type: string
+        client_id:
+          type: string
+        redirect_uri:
+          type: string
+          format: uri-template
+        code_verifier:
+          type: string
+      required:
+      - grant_type
+      
